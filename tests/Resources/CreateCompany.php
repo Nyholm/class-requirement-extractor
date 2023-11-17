@@ -6,6 +6,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class CreateCompany
 {
+    /**
+     * @example Volvo AB
+     */
     #[Assert\NotBlank]
     #[Assert\Type('string')]
     private $name;

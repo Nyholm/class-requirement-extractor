@@ -8,6 +8,7 @@ interface AttributeProcessorInterface
 
     /**
      * Return a list of attribute classes that we would like to process.
+     *
      * @return string[]
      */
     public function supportedAttributes(): array;

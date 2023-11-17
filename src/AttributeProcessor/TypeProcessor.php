@@ -4,20 +4,19 @@ namespace Nyholm\ClassRequirementExtractor\AttributeProcessor;
 
 use Nyholm\ClassRequirementExtractor\AttributeProcessorInterface;
 use Nyholm\ClassRequirementExtractor\Requirement;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
-class NotBlankProcessor implements AttributeProcessorInterface
+class TypeProcessor implements AttributeProcessorInterface
 {
     public function handle(Requirement $requirement, \ReflectionAttribute $attribute)
     {
         $arguments = $attribute->getArguments();
-        $object = new NotBlank(...$arguments);
-        $requirement->setAllowEmptyValue(false);
-        $requirement->setNullable($object->allowNull);
+        $object = new Type(...$arguments);
+        $requirement->addType($object->type);
     }
 
     public function supportedAttributes(): array
     {
-        return [NotBlank::class];
+        return [Type::class];
     }
 }

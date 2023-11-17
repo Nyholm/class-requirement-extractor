@@ -4,12 +4,14 @@ namespace Nyholm\ClassRequirementExtractor\Test\unit;
 
 use Nyholm\ClassRequirementExtractor\ExtractorFactory;
 use Nyholm\ClassRequirementExtractor\RequirementExtractor;
+use Nyholm\ClassRequirementExtractor\Test\Resources\CreateCompany;
 use Nyholm\ClassRequirementExtractor\Test\Resources\Simple;
 use PHPUnit\Framework\TestCase;
 
 class RequirementExtractorTest extends TestCase
 {
     private static RequirementExtractor $extractor;
+
     public static function setUpBeforeClass(): void
     {
         self::$extractor = ExtractorFactory::create();
@@ -55,5 +57,14 @@ class RequirementExtractorTest extends TestCase
         $this->assertFalse($req['paid']->isReadable());
         $this->assertTrue($req['paid']->isWriteable());
         $this->assertEquals('bool', $req['paid']->getTypes()[0]);
+    }
+
+    public function testExample()
+    {
+        $req = self::$extractor->extract(CreateCompany::class);
+        $this->assertEquals(['Volvo AB'], $req['name']->getExamples());
+        $this->assertTrue($req['name']->isReadable());
+        $this->assertTrue($req['name']->isWriteable());
+        $this->assertEquals('string', $req['name']->getTypes()[0]);
     }
 }

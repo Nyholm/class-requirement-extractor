@@ -3,6 +3,7 @@
 namespace Nyholm\ClassRequirementExtractor;
 
 use Nyholm\ClassRequirementExtractor\AttributeProcessor\NotBlankProcessor;
+use Nyholm\ClassRequirementExtractor\AttributeProcessor\TypeProcessor;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\PropertyInfo\Extractor\PhpStanExtractor;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
@@ -16,8 +17,9 @@ class ExtractorFactory
 {
     public static function create()
     {
-        return new RequirementExtractor(self::getPropertyExtractor(), [
+        return new RequirementExtractor(self::getPropertyExtractor(), new DocBlockParser(), [
             new NotBlankProcessor(),
+            new TypeProcessor(),
         ]);
     }
 

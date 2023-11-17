@@ -2,15 +2,16 @@
 
 namespace Nyholm\ClassRequirementExtractor;
 
+use phpDocumentor\Reflection\DocBlock;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Webmozart\Assert\Assert;
 
 class RequirementExtractor
 {
     private array $attributeProcessors = [];
+
     public function __construct(
         private PropertyInfoExtractorInterface $propertyExtractor,
+        private DocBlockParser $docBlockParser,
         iterable $attributeProcessors
     ) {
         foreach ($attributeProcessors as $processor) {
@@ -61,6 +62,11 @@ class RequirementExtractor
             foreach ($attributes as $attribute) {
                 $this->parseAttribute($requirement, $attribute);
             }
+
+            $docBlock = $this->docBlockParser->getDocBlock($class, $property)[0];
+            if (null !== $docBlock) {
+                $this->parseDocBlock($requirement, $docBlock);
+            }
         }
 
         return $requirements;
@@ -78,7 +84,6 @@ class RequirementExtractor
     }
 
     /**
-     * @param string $class
      * @return string[]
      */
     private function getAllProperties(string $class): array
@@ -96,5 +101,14 @@ class RequirementExtractor
         return array_map(function ($reflectionProperty) {
             return $reflectionProperty->name;
         }, $properties);
+    }
+
+    private function parseDocBlock(Requirement $requirement, DocBlock $docBlock): void
+    {
+        foreach ($docBlock->getTags() as $tag) {
+            if ('example' === $tag->getName()) {
+                $requirement->addExample($tag);
+            }
+        }
     }
 }

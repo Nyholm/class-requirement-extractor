@@ -10,7 +10,7 @@ class Requirement
     private array $types = [];
     private ?bool $nullable = null;
     private bool $allowEmptyValue = true;
-    private ?string $example = null;
+    private array $examples = [];
     private array $childRequirements = [];
 
     public function __construct(string $name, bool $writeable, bool $readable)
@@ -19,7 +19,6 @@ class Requirement
         $this->writeable = $writeable;
         $this->readable = $readable;
     }
-
 
     public function getName(): string
     {
@@ -71,14 +70,19 @@ class Requirement
         $this->allowEmptyValue = $allowEmptyValue;
     }
 
-    public function getExample(): ?string
+    public function hasExamples(): bool
     {
-        return $this->example;
+        return [] !== $this->examples;
     }
 
-    public function setExample(?string $example): void
+    public function getExamples(): array
     {
-        $this->example = $example;
+        return $this->examples;
+    }
+
+    public function addExample(string $example): void
+    {
+        $this->examples[] = $example;
     }
 
     public function getChildRequirements(): array
