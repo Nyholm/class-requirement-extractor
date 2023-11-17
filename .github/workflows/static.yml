@@ -1,0 +1,45 @@
+on: [ pull_request ]
+name: Static analysis
+
+jobs:
+  psalm:
+    name: Psalm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          extensions: apcu
+          coverage: none
+          tools: vimeo/psalm:5.13
+
+      - name: Download dependencies
+        uses: ramsey/composer-install@v2
+
+      - name: Psalm
+        run: psalm --no-progress --output-format=github
+
+  php-cs-fixer:
+    name: PHP-CS-Fixer
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          coverage: none
+          tools: php-cs-fixer:3.21, cs2pr
+
+      - name: Display PHP-CS-Fixer version
+        run: php-cs-fixer --version
+
+      - name: PHP-CS-Fixer
+        run: php-cs-fixer fix --dry-run --format=checkstyle | cs2pr
