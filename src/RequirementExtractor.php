@@ -51,7 +51,11 @@ class RequirementExtractor
                 $this->propertyExtractor->isReadable($class, $propertyName) ?? false
             );
 
-            foreach ($this->propertyExtractor->getTypes($class, $propertyName) ?? [] as $type) {
+            $types = $this->propertyExtractor->getTypes($class, $propertyName) ?? [];
+            if ([] === $types) {
+                $requirement->setNullable(true);
+            }
+            foreach ($types as $type) {
                 $requirement->setNullable($type->isNullable());
                 $typeString = $type->getClassName();
                 if (null === $typeString) {
