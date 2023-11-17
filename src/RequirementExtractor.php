@@ -105,6 +105,7 @@ class RequirementExtractor
 
     /**
      * @param class-string $class
+     *
      * @return string[]
      */
     private function getAllProperties(string $class): array

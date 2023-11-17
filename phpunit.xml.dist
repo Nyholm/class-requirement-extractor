@@ -6,8 +6,8 @@
          beStrictAboutTodoAnnotatedTests="true"
          colors="true">
     <testsuites>
-        <testsuite name="MatthiasSymfonyConfigTest">
-            <directory>Tests</directory>
+        <testsuite name="Tests">
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
     <coverage/>
