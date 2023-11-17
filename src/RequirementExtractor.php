@@ -44,13 +44,14 @@ class RequirementExtractor
 
         $requirements = [];
         foreach ($properties as $property) {
-            $requirements[$property] = $requirement = new Requirement(
-                $property,
-                $this->propertyExtractor->isWritable($class, $property) ?? false,
-                $this->propertyExtractor->isReadable($class, $property) ?? false
+            $propertyName = $property->name;
+            $requirements[$propertyName] = $requirement = new Requirement(
+                $propertyName,
+                $this->propertyExtractor->isWritable($class, $propertyName) ?? false,
+                $this->propertyExtractor->isReadable($class, $propertyName) ?? false
             );
 
-            foreach ($this->propertyExtractor->getTypes($class, $property) ?? [] as $type) {
+            foreach ($this->propertyExtractor->getTypes($class, $propertyName) ?? [] as $type) {
                 $requirement->setNullable($type->isNullable());
                 $typeString = $type->getClassName();
                 if (null === $typeString) {
@@ -60,12 +61,12 @@ class RequirementExtractor
                 $requirement->addType($typeString);
             }
 
-            $attributes = (new \ReflectionProperty($class, $property))->getAttributes();
+            $attributes = $property->getAttributes();
             foreach ($attributes as $attribute) {
                 $this->parseAttribute($requirement, $attribute->newInstance());
             }
 
-            $docBlock = $this->docBlockParser->getDocBlock($class, $property)[0];
+            $docBlock = $this->docBlockParser->getDocBlock($class, $propertyName)[0];
             if (null !== $docBlock) {
                 $this->parseDocBlock($requirement, $docBlock);
             }
@@ -107,7 +108,7 @@ class RequirementExtractor
     /**
      * @param class-string $class
      *
-     * @return string[]
+     * @return \ReflectionProperty[]
      */
     private function getAllProperties(string $class): array
     {
@@ -121,9 +122,7 @@ class RequirementExtractor
             $class = $parent;
         }
 
-        return array_map(function ($reflectionProperty) {
-            return $reflectionProperty->name;
-        }, $properties);
+        return $properties;
     }
 
     private function parseDocBlock(Requirement $requirement, DocBlock $docBlock): void

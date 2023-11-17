@@ -10,7 +10,10 @@ class TypeProcessor implements AttributeProcessorInterface
 {
     public function handle(Requirement $requirement, object $attribute)
     {
-        $requirement->addType($attribute->type);
+        $types = (array) $attribute->type;
+        foreach ($types as $type) {
+            $requirement->addType($type);
+        }
     }
 
     public function supportedAttributes(): array
