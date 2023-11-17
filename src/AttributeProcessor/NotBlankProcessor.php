@@ -8,12 +8,10 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class NotBlankProcessor implements AttributeProcessorInterface
 {
-    public function handle(Requirement $requirement, \ReflectionAttribute $attribute)
+    public function handle(Requirement $requirement, object $attribute)
     {
-        $arguments = $attribute->getArguments();
-        $object = new NotBlank(...$arguments);
         $requirement->setAllowEmptyValue(false);
-        $requirement->setNullable($object->allowNull);
+        $requirement->setNullable($attribute->allowNull);
     }
 
     public function supportedAttributes(): array

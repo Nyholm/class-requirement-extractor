@@ -4,7 +4,7 @@ namespace Nyholm\ClassRequirementExtractor;
 
 interface AttributeProcessorInterface
 {
-    public function handle(Requirement $requirement, \ReflectionAttribute $attribute);
+    public function handle(Requirement $requirement, object $attribute);
 
     /**
      * Return a list of attribute classes that we would like to process.

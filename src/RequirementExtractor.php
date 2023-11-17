@@ -4,6 +4,8 @@ namespace Nyholm\ClassRequirementExtractor;
 
 use phpDocumentor\Reflection\DocBlock;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Sequentially;
 
 class RequirementExtractor
 {
@@ -60,7 +62,7 @@ class RequirementExtractor
 
             $attributes = (new \ReflectionProperty($class, $property))->getAttributes();
             foreach ($attributes as $attribute) {
-                $this->parseAttribute($requirement, $attribute);
+                $this->parseAttribute($requirement, $attribute->newInstance());
             }
 
             $docBlock = $this->docBlockParser->getDocBlock($class, $property)[0];
@@ -72,9 +74,25 @@ class RequirementExtractor
         return $requirements;
     }
 
-    private function parseAttribute(Requirement $requirement, \ReflectionAttribute $attribute)
+    private function parseAttribute(Requirement $requirement, object $attribute)
     {
-        $name = $attribute->getName();
+        if ($attribute instanceof Sequentially) {
+            foreach ($attribute->getNestedConstraints() as $constraint) {
+                $this->parseAttribute($requirement, $constraint);
+            }
+            return;
+        }
+
+        if ($attribute instanceof All) {
+            $child = new Requirement($requirement->getName().'[]', $requirement->isWriteable(), $requirement->isReadable());
+            $requirement->setChildRequirements([$child]);
+            foreach ($attribute->getNestedConstraints() as $constraint) {
+                $this->parseAttribute($child, $constraint);
+            }
+            return;
+        }
+
+        $name = get_class($attribute);
         foreach (['*', $name] as $key) {
             /** @var AttributeProcessorInterface $processor */
             foreach ($this->attributeProcessors[$key] ?? [] as $processor) {

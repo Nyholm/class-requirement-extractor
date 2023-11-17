@@ -59,6 +59,19 @@ class RequirementExtractorTest extends TestCase
         $this->assertEquals('bool', $req['paid']->getTypes()[0]);
     }
 
+    public function testArray()
+    {
+        $req = self::$extractor->extract(CreateCompany::class);
+        $this->assertCount(3, $req);
+
+        $admin = $req['administrators'];
+        $this->assertCount(1, $admin->getChildRequirements());
+        $child = $admin->getChildRequirements()[0];
+        $this->assertEquals('string', $child->getTypes()[0]);
+        $this->assertFalse($child->isNullable());
+        $this->assertFalse($child->getAllowEmptyValue());
+    }
+
     public function testExample()
     {
         $req = self::$extractor->extract(CreateCompany::class);

@@ -8,11 +8,9 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class TypeProcessor implements AttributeProcessorInterface
 {
-    public function handle(Requirement $requirement, \ReflectionAttribute $attribute)
+    public function handle(Requirement $requirement, object $attribute)
     {
-        $arguments = $attribute->getArguments();
-        $object = new Type(...$arguments);
-        $requirement->addType($object->type);
+        $requirement->addType($attribute->type);
     }
 
     public function supportedAttributes(): array
