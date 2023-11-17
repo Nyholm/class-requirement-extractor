@@ -3,13 +3,31 @@
 namespace Nyholm\ClassRequirementExtractor;
 
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Webmozart\Assert\Assert;
 
 class RequirementExtractor
 {
+    private array $attributeProcessors = [];
     public function __construct(
         private PropertyInfoExtractorInterface $propertyExtractor,
+        iterable $attributeProcessors
     ) {
+        foreach ($attributeProcessors as $processor) {
+            $this->addAttributeProcessor($processor);
+        }
+    }
+
+    public function addAttributeProcessor(AttributeProcessorInterface $processor): void
+    {
+        $supported = $processor->supportedAttributes();
+        foreach ($supported as $type) {
+            if (!isset($this->attributeProcessors[$type])) {
+                $this->attributeProcessors[$type] = [];
+            }
+
+            $this->attributeProcessors[$type][] = $processor;
+        }
     }
 
     /**
@@ -30,7 +48,13 @@ class RequirementExtractor
             );
 
             foreach ($this->propertyExtractor->getTypes($class, $property) as $type) {
-                $x = 2;
+                $requirement->setNullable($type->isNullable());
+                $typeString = $type->getClassName();
+                if (null === $typeString) {
+                    $typeString = $type->getBuiltinType();
+                }
+
+                $requirement->addType($typeString);
             }
 
             $attributes = (new \ReflectionProperty($class, $property))->getAttributes();
@@ -45,8 +69,12 @@ class RequirementExtractor
     private function parseAttribute(Requirement $requirement, \ReflectionAttribute $attribute)
     {
         $name = $attribute->getName();
-        $arguments = $attribute->getArguments();
-        $x = 2;
+        foreach (['*', $name] as $key) {
+            /** @var AttributeProcessorInterface $processor */
+            foreach ($this->attributeProcessors[$key] ?? [] as $processor) {
+                $processor->handle($requirement, $attribute);
+            }
+        }
     }
 
     /**

@@ -7,9 +7,9 @@ class Requirement
     private string $name;
     private bool $writeable;
     private bool $readable;
-    private ?string $type = null;
-    private ?bool $required = null;
-    private ?bool $allowEmptyValue = null;
+    private array $types = [];
+    private ?bool $nullable = null;
+    private bool $allowEmptyValue = true;
     private ?string $example = null;
     private array $childRequirements = [];
 
@@ -26,41 +26,39 @@ class Requirement
         return $this->name;
     }
 
-    /**
-     * @return bool
-     */
     public function isWriteable(): bool
     {
         return $this->writeable;
     }
 
-    /**
-     * @return bool
-     */
     public function isReadable(): bool
     {
         return $this->readable;
     }
 
-
-    public function getType(): ?string
+    public function hasType()
     {
-        return $this->type;
+        return [] !== $this->getTypes();
     }
 
-    public function setType(?string $type): void
+    public function getTypes(): array
     {
-        $this->type = $type;
+        return $this->types;
     }
 
-    public function getRequired(): ?bool
+    public function addType(?string $type): void
     {
-        return $this->required;
+        $this->types[] = $type;
     }
 
-    public function setRequired(?bool $required): void
+    public function isNullable(): ?bool
     {
-        $this->required = $required;
+        return $this->nullable;
+    }
+
+    public function setNullable(?bool $nullable): void
+    {
+        $this->nullable = $nullable;
     }
 
     public function getAllowEmptyValue(): ?bool

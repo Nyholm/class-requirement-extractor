@@ -24,29 +24,36 @@ class RequirementExtractorTest extends TestCase
         $this->assertEquals('firstName', $req['firstName']->getName());
         $this->assertFalse($req['firstName']->isReadable());
         $this->assertFalse($req['firstName']->isWriteable());
+        $this->assertEquals('string', $req['firstName']->getTypes()[0]);
+        $this->assertFalse($req['firstName']->isNullable());
+        $this->assertFalse($req['firstName']->getAllowEmptyValue());
 
         $this->assertEquals('lastName', $req['lastName']->getName());
         $this->assertFalse($req['lastName']->isReadable());
         $this->assertFalse($req['lastName']->isWriteable());
+        $this->assertEquals('string', $req['lastName']->getTypes()[0]);
+        $this->assertTrue($req['lastName']->isNullable());
+        $this->assertTrue($req['lastName']->getAllowEmptyValue());
 
         $this->assertEquals('age', $req['age']->getName());
         $this->assertTrue($req['age']->isReadable());
         $this->assertFalse($req['age']->isWriteable());
+        $this->assertEquals('int', $req['age']->getTypes()[0]);
 
         $this->assertEquals('hobby', $req['hobby']->getName());
         $this->assertFalse($req['hobby']->isReadable());
         $this->assertFalse($req['hobby']->isWriteable());
+        $this->assertFalse($req['hobby']->hasType());
 
         $this->assertEquals('color', $req['color']->getName());
         $this->assertFalse($req['color']->isReadable());
         $this->assertTrue($req['color']->isWriteable());
+        $this->assertEquals('string', $req['color']->getTypes()[0]);
+        $this->assertTrue($req['color']->getAllowEmptyValue());
 
         $this->assertEquals('paid', $req['paid']->getName());
         $this->assertFalse($req['paid']->isReadable());
         $this->assertTrue($req['paid']->isWriteable());
-
-
-
-        $x = 2;
+        $this->assertEquals('bool', $req['paid']->getTypes()[0]);
     }
 }
