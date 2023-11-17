@@ -65,6 +65,8 @@ class RequirementExtractorTest extends TestCase
         $this->assertCount(3, $req);
 
         $admin = $req['administrators'];
+        $this->assertEquals('array', $admin->getTypes()[0]);
+
         $this->assertCount(1, $admin->getChildRequirements());
         $child = $admin->getChildRequirements()[0];
         $this->assertEquals('string', $child->getTypes()[0]);
