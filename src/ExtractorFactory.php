@@ -2,6 +2,7 @@
 
 namespace Nyholm\ClassRequirementExtractor;
 
+use Nyholm\ClassRequirementExtractor\AttributeProcessor\DeprecatedProcessor;
 use Nyholm\ClassRequirementExtractor\AttributeProcessor\NotBlankProcessor;
 use Nyholm\ClassRequirementExtractor\AttributeProcessor\TypeProcessor;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
@@ -20,6 +21,7 @@ class ExtractorFactory
         return new RequirementExtractor(self::getPropertyExtractor(), new DocBlockParser(), [
             new NotBlankProcessor(),
             new TypeProcessor(),
+            new DeprecatedProcessor(),
         ]);
     }
 

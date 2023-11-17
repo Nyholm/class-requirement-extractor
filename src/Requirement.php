@@ -7,6 +7,7 @@ class Requirement
     private string $name;
     private bool $writeable;
     private bool $readable;
+    private ?bool $deprecated = null;
     private array $types = [];
     private ?bool $nullable = null;
     private bool $allowEmptyValue = true;
@@ -93,5 +94,15 @@ class Requirement
     public function setChildRequirements(array $childRequirements): void
     {
         $this->childRequirements = $childRequirements;
+    }
+
+    public function isDeprecated(): ?bool
+    {
+        return $this->deprecated;
+    }
+
+    public function setDeprecated(?bool $deprecated): void
+    {
+        $this->deprecated = $deprecated;
     }
 }

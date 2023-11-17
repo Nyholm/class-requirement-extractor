@@ -130,6 +130,8 @@ class RequirementExtractor
         foreach ($docBlock->getTags() as $tag) {
             if ('example' === $tag->getName()) {
                 $requirement->addExample((string) $tag);
+            } elseif ('deprecated' === $tag->getName()) {
+                $requirement->setDeprecated(true);
             }
         }
     }
