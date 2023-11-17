@@ -46,11 +46,11 @@ class RequirementExtractor
         foreach ($properties as $property) {
             $requirements[$property] = $requirement = new Requirement(
                 $property,
-                $this->propertyExtractor->isWritable($class, $property),
-                $this->propertyExtractor->isReadable($class, $property)
+                $this->propertyExtractor->isWritable($class, $property) ?? false,
+                $this->propertyExtractor->isReadable($class, $property) ?? false
             );
 
-            foreach ($this->propertyExtractor->getTypes($class, $property) as $type) {
+            foreach ($this->propertyExtractor->getTypes($class, $property) ?? [] as $type) {
                 $requirement->setNullable($type->isNullable());
                 $typeString = $type->getClassName();
                 if (null === $typeString) {
@@ -80,6 +80,7 @@ class RequirementExtractor
             foreach ($attribute->getNestedConstraints() as $constraint) {
                 $this->parseAttribute($requirement, $constraint);
             }
+
             return;
         }
 
@@ -89,6 +90,7 @@ class RequirementExtractor
             foreach ($attribute->getNestedConstraints() as $constraint) {
                 $this->parseAttribute($child, $constraint);
             }
+
             return;
         }
 
@@ -102,6 +104,7 @@ class RequirementExtractor
     }
 
     /**
+     * @param class-string $class
      * @return string[]
      */
     private function getAllProperties(string $class): array
@@ -125,7 +128,7 @@ class RequirementExtractor
     {
         foreach ($docBlock->getTags() as $tag) {
             if ('example' === $tag->getName()) {
-                $requirement->addExample($tag);
+                $requirement->addExample((string) $tag);
             }
         }
     }

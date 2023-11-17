@@ -65,7 +65,7 @@ class Requirement
         return $this->allowEmptyValue;
     }
 
-    public function setAllowEmptyValue(?bool $allowEmptyValue): void
+    public function setAllowEmptyValue(bool $allowEmptyValue): void
     {
         $this->allowEmptyValue = $allowEmptyValue;
     }
