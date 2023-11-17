@@ -85,6 +85,7 @@ class RequirementExtractor
         }
 
         if ($attribute instanceof All) {
+            $requirement->addType('array');
             $child = new Requirement($requirement->getName().'[]', $requirement->isWriteable(), $requirement->isReadable());
             $requirement->setChildRequirements([$child]);
             foreach ($attribute->getNestedConstraints() as $constraint) {
