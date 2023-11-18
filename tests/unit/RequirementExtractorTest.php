@@ -5,9 +5,9 @@ namespace Nyholm\ClassRequirementExtractor\Test\unit;
 use Nyholm\ClassRequirementExtractor\ExtractorFactory;
 use Nyholm\ClassRequirementExtractor\RequirementExtractor;
 use Nyholm\ClassRequirementExtractor\Test\Resources\CreateCompany;
+use Nyholm\ClassRequirementExtractor\Test\Resources\Nullable;
 use Nyholm\ClassRequirementExtractor\Test\Resources\Simple;
 use PHPUnit\Framework\TestCase;
-use Nyholm\ClassRequirementExtractor\Test\Resources\Nullable;
 
 class RequirementExtractorTest extends TestCase
 {
@@ -83,12 +83,12 @@ class RequirementExtractorTest extends TestCase
         $this->assertTrue($req['name']->isWriteable());
         $this->assertEquals('string', $req['name']->getTypes()[0]);
     }
+
     public function testNullable()
     {
         $req = self::$extractor->extract(Nullable::class);
         $this->assertTrue($req['noTypeHint']->isNullable());
         $this->assertFalse($req['notNullable']->isNullable());
         $this->assertTrue($req['nullableString']->isNullable());
-
     }
 }
