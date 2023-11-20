@@ -48,6 +48,12 @@ class Requirement
 
     public function addType(?string $type): void
     {
+        if ('boolean' === $type) {
+            $type = 'bool';
+        } elseif ('integer' === $type) {
+            $type = 'int';
+        }
+
         $this->types[] = $type;
     }
 
