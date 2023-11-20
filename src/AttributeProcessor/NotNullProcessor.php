@@ -1,6 +1,6 @@
 <?php
 
-namespace AttributeProcessor;
+namespace Nyholm\ClassRequirementExtractor\AttributeProcessor;
 
 use Nyholm\ClassRequirementExtractor\AttributeProcessorInterface;
 use Nyholm\ClassRequirementExtractor\Requirement;
