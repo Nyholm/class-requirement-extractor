@@ -70,7 +70,7 @@ class RequirementExtractor
                 $this->parseAttribute($requirement, $attribute->newInstance());
             }
 
-            $docBlock = $this->docBlockParser->getDocBlock($class, $propertyName)[0];
+            $docBlock = $this->docBlockParser->getDocBlock($property->class, $propertyName)[0];
             if (null !== $docBlock) {
                 $this->parseDocBlock($requirement, $docBlock);
             }

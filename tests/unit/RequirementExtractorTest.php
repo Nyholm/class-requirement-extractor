@@ -4,6 +4,7 @@ namespace Nyholm\ClassRequirementExtractor\Test\unit;
 
 use Nyholm\ClassRequirementExtractor\ExtractorFactory;
 use Nyholm\ClassRequirementExtractor\RequirementExtractor;
+use Nyholm\ClassRequirementExtractor\Test\Resources\Child;
 use Nyholm\ClassRequirementExtractor\Test\Resources\CreateCompany;
 use Nyholm\ClassRequirementExtractor\Test\Resources\Nullable;
 use Nyholm\ClassRequirementExtractor\Test\Resources\Simple;
@@ -90,5 +91,11 @@ class RequirementExtractorTest extends TestCase
         $this->assertTrue($req['noTypeHint']->isNullable());
         $this->assertFalse($req['notNullable']->isNullable());
         $this->assertTrue($req['nullableString']->isNullable());
+    }
+
+    public function testInheritance()
+    {
+        $req = self::$extractor->extract(Child::class);
+        $this->assertTrue($req['deprecated']->isDeprecated());
     }
 }
