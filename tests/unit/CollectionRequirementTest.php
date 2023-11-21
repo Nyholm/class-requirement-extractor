@@ -5,13 +5,9 @@ namespace Nyholm\ClassRequirementExtractor\Test\unit;
 use Nyholm\ClassRequirementExtractor\Requirement;
 use Nyholm\ClassRequirementExtractor\RequirementList;
 use Nyholm\ClassRequirementExtractor\RequirementMap;
-use Nyholm\ClassRequirementExtractor\Test\Resources\Child;
-use Nyholm\ClassRequirementExtractor\Test\Resources\CreateCompany;
-use Nyholm\ClassRequirementExtractor\Test\Resources\Nullable;
 use Nyholm\ClassRequirementExtractor\Test\Resources\Product;
 use Nyholm\ClassRequirementExtractor\Test\Resources\ProductCategory;
 use Nyholm\ClassRequirementExtractor\Test\Resources\ProductComment;
-use Nyholm\ClassRequirementExtractor\Test\Resources\Simple;
 
 class CollectionRequirementTest extends BaseTestCase
 {
@@ -22,7 +18,7 @@ class CollectionRequirementTest extends BaseTestCase
 
         /** @var RequirementList $commentsReq */
         $commentsReq = $req['comments'];
-        //$this->assertEquals(15, $commentsReq->getMaxCount());
+        // $this->assertEquals(15, $commentsReq->getMaxCount());
         $this->assertEquals(ProductComment::class, $commentsReq->getTypes()[0]);
 
         /** @var Requirement $child */

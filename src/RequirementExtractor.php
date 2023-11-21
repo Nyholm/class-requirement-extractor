@@ -5,7 +5,9 @@ namespace Nyholm\ClassRequirementExtractor;
 use phpDocumentor\Reflection\DocBlock;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\Sequentially;
+use Symfony\Component\Validator\Constraints\Type;
 
 class RequirementExtractor
 {
@@ -45,18 +47,18 @@ class RequirementExtractor
         $requirements = [];
         foreach ($properties as $property) {
             $propertyName = $property->name;
-            $requirements[$propertyName] = $requirement = new Requirement(
+            $requirementClass = $this->getRequirementType($class, $property);
+
+            /* @var Requirement $requirement */
+            $requirements[$propertyName] = $requirement = new $requirementClass(
                 $propertyName,
                 $this->propertyExtractor->isWritable($class, $propertyName) ?? false,
                 $this->propertyExtractor->isReadable($class, $propertyName) ?? false
             );
 
             $types = $this->propertyExtractor->getTypes($class, $propertyName) ?? [];
-            if ([] === $types) {
-                $requirement->setNullable(true);
-            }
             foreach ($types as $type) {
-                $requirement->setNullable($type->isNullable());
+                $requirement->setNullable($requirement->isNullable() || $type->isNullable());
                 $typeString = $type->getClassName();
                 if (null === $typeString) {
                     $typeString = $type->getBuiltinType();
@@ -74,12 +76,63 @@ class RequirementExtractor
             if (null !== $docBlock) {
                 $this->parseDocBlock($requirement, $docBlock);
             }
+
+            if ($requirement instanceof CollectionRequirement) {
+                $types = array_filter($requirement->getTypes(), fn ($type) => class_exists($type));
+                if (count($types) > 1) {
+                    throw new \LogicException('This is not yet supported');
+                }
+                foreach ($types as $type) {
+                    $requirement->setChildRequirements($this->extract($type));
+                }
+            }
         }
 
         return $requirements;
     }
 
-    private function parseAttribute(Requirement $requirement, object $attribute)
+    /**
+     * This method will figure out if we need a Requirement, RequirementList or RequirementMap.
+     *
+     * @param class-string $class
+     *
+     * @return class-string
+     */
+    private function getRequirementType(string $class, \ReflectionProperty $property): string
+    {
+        $stringTypes = [];
+        foreach ($this->propertyExtractor->getTypes($class, $property->getName()) ?? [] as $type) {
+            $typeString = $type->getClassName();
+            if (null === $typeString) {
+                $typeString = $type->getBuiltinType();
+            }
+            $stringTypes[] = $typeString;
+        }
+        foreach ($property->getAttributes(Type::class) as $attribute) {
+            $instance = $attribute->newInstance();
+
+            foreach ((array) $instance->type as $type) {
+                $stringTypes[] = $type;
+            }
+        }
+
+        if (in_array('object', $stringTypes) || [] !== array_filter($stringTypes, fn ($type) => class_exists($type))) {
+            return RequirementMap::class;
+        }
+
+        // If type is array, or attribute All or Collection, then do List
+        if (in_array('object', $stringTypes)) {
+            return RequirementList::class;
+        }
+
+        if ([] !== $property->getAttributes(All::class) || [] !== $property->getAttributes(Collection::class)) {
+            return RequirementList::class;
+        }
+
+        return Requirement::class;
+    }
+
+    private function parseAttribute(Requirement $requirement, object $attribute): void
     {
         if ($attribute instanceof Sequentially) {
             foreach ($attribute->getNestedConstraints() as $constraint) {
@@ -89,12 +142,15 @@ class RequirementExtractor
             return;
         }
 
+        if ($attribute instanceof Collection) {
+            // TODO treat "fields" as an array.
+            // @see https://symfony.com/doc/current/reference/constraints/Collection.html
+        }
+
         if ($attribute instanceof All) {
-            $requirement->addType('array');
-            $child = new Requirement($requirement->getName().'[]', $requirement->isWriteable(), $requirement->isReadable());
-            $requirement->setChildRequirements([$child]);
+            // TODO
             foreach ($attribute->getNestedConstraints() as $constraint) {
-                $this->parseAttribute($child, $constraint);
+                $this->parseAttribute($requirement, $constraint);
             }
 
             return;
