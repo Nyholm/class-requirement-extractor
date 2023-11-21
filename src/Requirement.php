@@ -12,7 +12,6 @@ class Requirement
     private ?bool $nullable = null;
     private bool $allowEmptyValue = true;
     private array $examples = [];
-    private array $childRequirements = [];
 
     public function __construct(string $name, bool $writeable, bool $readable)
     {
@@ -90,16 +89,6 @@ class Requirement
     public function addExample(string $example): void
     {
         $this->examples[] = $example;
-    }
-
-    public function getChildRequirements(): array
-    {
-        return $this->childRequirements;
-    }
-
-    public function setChildRequirements(array $childRequirements): void
-    {
-        $this->childRequirements = $childRequirements;
     }
 
     public function isDeprecated(): ?bool

@@ -2,24 +2,13 @@
 
 namespace Nyholm\ClassRequirementExtractor\Test\unit;
 
-use Nyholm\ClassRequirementExtractor\ExtractorFactory;
-use Nyholm\ClassRequirementExtractor\RequirementExtractor;
 use Nyholm\ClassRequirementExtractor\Test\Resources\Child;
 use Nyholm\ClassRequirementExtractor\Test\Resources\CreateCompany;
 use Nyholm\ClassRequirementExtractor\Test\Resources\Nullable;
 use Nyholm\ClassRequirementExtractor\Test\Resources\Simple;
-use PHPUnit\Framework\TestCase;
 
-class RequirementExtractorTest extends TestCase
+class RequirementExtractorTest extends BaseTestCase
 {
-    private static RequirementExtractor $extractor;
-
-    public static function setUpBeforeClass(): void
-    {
-        self::$extractor = ExtractorFactory::create();
-        parent::setUpBeforeClass();
-    }
-
     public function testSimple()
     {
         $req = self::$extractor->extract(Simple::class);
