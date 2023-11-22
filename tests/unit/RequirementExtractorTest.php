@@ -80,6 +80,7 @@ class RequirementExtractorTest extends BaseTestCase
         $this->assertTrue($req['noTypeHint']->isNullable());
         $this->assertFalse($req['notNullable']->isNullable());
         $this->assertTrue($req['nullableString']->isNullable());
+        $this->assertFalse($req['noTypeHintYesAnnotation']->isNullable());
     }
 
     public function testInheritance()

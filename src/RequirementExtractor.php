@@ -190,8 +190,14 @@ class RequirementExtractor
      */
     private function parseTypes(string $class, string $propertyName, Requirement $requirement): void
     {
-        $childTypes = [];
         $types = $this->propertyTypeExtractor->getTypes($class, $propertyName) ?? [];
+        if ([] === $types) {
+            $requirement->setNullable(true);
+
+            return;
+        }
+
+        $childTypes = [];
         foreach ($types as $type) {
             $requirement->setNullable($requirement->isNullable() || $type->isNullable());
             if ($requirement instanceof RequirementList && $type->isCollection()) {
