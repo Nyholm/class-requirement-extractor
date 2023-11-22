@@ -2,6 +2,10 @@
 
 namespace Nyholm\ClassRequirementExtractor;
 
+use Nyholm\ClassRequirementExtractor\Model\CollectionRequirement;
+use Nyholm\ClassRequirementExtractor\Model\Requirement;
+use Nyholm\ClassRequirementExtractor\Model\RequirementList;
+use Nyholm\ClassRequirementExtractor\Model\RequirementMap;
 use phpDocumentor\Reflection\DocBlock;
 use Symfony\Component\PropertyInfo\PropertyAccessExtractorInterface;
 use Symfony\Component\PropertyInfo\PropertyTypeExtractorInterface;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Nyholm\ClassRequirementExtractor;
+namespace Nyholm\ClassRequirementExtractor\Model;
 
 class Requirement
 {

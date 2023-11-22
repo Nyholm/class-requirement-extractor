@@ -1,6 +1,6 @@
 <?php
 
-namespace Nyholm\ClassRequirementExtractor;
+namespace Nyholm\ClassRequirementExtractor\Model;
 
 /**
  * This represent Foo::$bar where $bar is an array of Bar.

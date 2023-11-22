@@ -2,9 +2,9 @@
 
 namespace Nyholm\ClassRequirementExtractor\Test\unit;
 
-use Nyholm\ClassRequirementExtractor\Requirement;
-use Nyholm\ClassRequirementExtractor\RequirementList;
-use Nyholm\ClassRequirementExtractor\RequirementMap;
+use Nyholm\ClassRequirementExtractor\Model\Requirement;
+use Nyholm\ClassRequirementExtractor\Model\RequirementList;
+use Nyholm\ClassRequirementExtractor\Model\RequirementMap;
 use Nyholm\ClassRequirementExtractor\Test\Resources\Product;
 use Nyholm\ClassRequirementExtractor\Test\Resources\ProductCategory;
 use Nyholm\ClassRequirementExtractor\Test\Resources\ProductComment;
