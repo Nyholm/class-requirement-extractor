@@ -26,6 +26,6 @@ class AllTypeExtractor implements PropertyTypeExtractorInterface
             }
         }
 
-        return $output ? array_merge(...$output) : [];
+        return [] !== $output ? array_merge(...$output) : [];
     }
 }

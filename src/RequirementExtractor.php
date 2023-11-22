@@ -58,24 +58,7 @@ class RequirementExtractor
                 $this->propertyAccessExtractor->isReadable($class, $propertyName) ?? false
             );
 
-            $types = $this->propertyTypeExtractor->getTypes($class, $propertyName) ?? [];
-            foreach ($types as $type) {
-                $requirement->setNullable($requirement->isNullable() || $type->isNullable());
-                if ($requirement instanceof RequirementList && $type->isCollection()) {
-                    // TODO fix me
-                    $type = $type->getCollectionValueTypes()[0] ?? null;
-                    if (null === $type) {
-                        continue;
-                    }
-                }
-
-                $typeString = $type->getBuiltinType();
-                if ('object' === $typeString) {
-                    $typeString = $type->getClassName();
-                }
-
-                $requirement->addType($typeString);
-            }
+            $this->parseTypes($class, $propertyName, $requirement);
 
             $attributes = $property->getAttributes();
             foreach ($attributes as $attribute) {
@@ -112,11 +95,7 @@ class RequirementExtractor
     {
         $stringTypes = [];
         foreach ($this->propertyTypeExtractor->getTypes($class, $property->getName()) ?? [] as $type) {
-            $typeString = $type->getClassName();
-            if (null === $typeString) {
-                $typeString = $type->getBuiltinType();
-            }
-            $stringTypes[] = $typeString;
+            $stringTypes[] = $type->getBuiltinType();
         }
         foreach ($property->getAttributes(Type::class) as $attribute) {
             $instance = $attribute->newInstance();
@@ -126,16 +105,12 @@ class RequirementExtractor
             }
         }
 
-        if (in_array('object', $stringTypes) || [] !== array_filter($stringTypes, fn ($type) => class_exists($type))) {
+        if (in_array('object', $stringTypes)) {
             return RequirementMap::class;
         }
 
         // If type is array, or attribute All or Collection, then do List
-        if (in_array('object', $stringTypes)) {
-            return RequirementList::class;
-        }
-
-        if ([] !== $property->getAttributes(All::class) || [] !== $property->getAttributes(Collection::class)) {
+        if (in_array('array', $stringTypes) || [] !== $property->getAttributes(All::class) || [] !== $property->getAttributes(Collection::class)) {
             return RequirementList::class;
         }
 
@@ -158,7 +133,6 @@ class RequirementExtractor
         }
 
         if ($attribute instanceof All) {
-            // TODO
             foreach ($attribute->getNestedConstraints() as $constraint) {
                 $this->parseAttribute($requirement, $constraint);
             }
@@ -203,6 +177,38 @@ class RequirementExtractor
             } elseif ('deprecated' === $tag->getName()) {
                 $requirement->setDeprecated(true);
             }
+        }
+    }
+
+    /**
+     * @param class-string $class
+     */
+    private function parseTypes(string $class, string $propertyName, Requirement $requirement): void
+    {
+        $childTypes = [];
+        $types = $this->propertyTypeExtractor->getTypes($class, $propertyName) ?? [];
+        foreach ($types as $type) {
+            $requirement->setNullable($requirement->isNullable() || $type->isNullable());
+            if ($requirement instanceof RequirementList && $type->isCollection()) {
+                $childTypes[] = $type->getCollectionValueTypes();
+                continue;
+            }
+
+            $typeString = $type->getClassName();
+            if (null === $typeString) {
+                $typeString = $type->getBuiltinType();
+            }
+
+            $requirement->addType($typeString);
+        }
+
+        foreach ([] !== $childTypes ? array_merge(...$childTypes) : [] as $type) {
+            $typeString = $type->getClassName();
+            if (null === $typeString) {
+                $typeString = $type->getBuiltinType();
+            }
+
+            $requirement->addType($typeString);
         }
     }
 }
