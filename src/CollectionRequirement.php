@@ -13,4 +13,6 @@ interface CollectionRequirement
      * @param array<string, Requirement> $childRequirements
      */
     public function setChildRequirements(array $childRequirements): void;
+
+    public function getTypes(): array;
 }

@@ -45,7 +45,7 @@ class Requirement
         return array_keys($this->types);
     }
 
-    public function addType(?string $type): void
+    public function addType(string $type): void
     {
         if ('boolean' === $type) {
             $type = 'bool';

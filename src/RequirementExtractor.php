@@ -40,7 +40,7 @@ class RequirementExtractor
     /**
      * @param class-string $class
      *
-     * @return Requirement[]
+     * @return array<string, Requirement>
      */
     public function extract(string $class): array
     {
@@ -51,12 +51,13 @@ class RequirementExtractor
             $propertyName = $property->name;
             $requirementClass = $this->getRequirementType($class, $property);
 
-            /* @var Requirement $requirement */
-            $requirements[$propertyName] = $requirement = new $requirementClass(
+            /** @var Requirement|RequirementList|RequirementMap $requirement */
+            $requirement = new $requirementClass(
                 $propertyName,
                 $this->propertyAccessExtractor->isWritable($class, $propertyName) ?? false,
                 $this->propertyAccessExtractor->isReadable($class, $propertyName) ?? false
             );
+            $requirements[$propertyName] = $requirement;
 
             $this->parseTypes($class, $propertyName, $requirement);
 

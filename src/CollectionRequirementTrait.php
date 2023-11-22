@@ -6,6 +6,9 @@ trait CollectionRequirementTrait
 {
     private array $childRequirements = [];
 
+    /**
+     * @return array<string, Requirement>
+     */
     public function getRequirements(): array
     {
         return $this->childRequirements;
