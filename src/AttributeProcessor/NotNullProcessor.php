@@ -3,7 +3,7 @@
 namespace Nyholm\ClassRequirementExtractor\AttributeProcessor;
 
 use Nyholm\ClassRequirementExtractor\AttributeProcessorInterface;
-use Nyholm\ClassRequirementExtractor\Requirement;
+use Nyholm\ClassRequirementExtractor\Model\Requirement;
 use Symfony\Component\Validator\Constraints\NotNull;
 
 class NotNullProcessor implements AttributeProcessorInterface

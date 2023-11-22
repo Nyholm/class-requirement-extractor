@@ -2,6 +2,8 @@
 
 namespace Nyholm\ClassRequirementExtractor;
 
+use Nyholm\ClassRequirementExtractor\Model\Requirement;
+
 interface AttributeProcessorInterface
 {
     public function handle(Requirement $requirement, object $attribute);

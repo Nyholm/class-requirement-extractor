@@ -8,41 +8,24 @@ use Nyholm\ClassRequirementExtractor\AttributeProcessor\TypeProcessor;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\PropertyInfo\Extractor\PhpStanExtractor;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
-use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
-use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 
 /**
  * This is a good class to use if you don't have proper dependency injection.
  */
 class ExtractorFactory
 {
-    public static function create()
-    {
-        return new RequirementExtractor(self::getPropertyExtractor(), new DocBlockParser(), [
-            new NotBlankProcessor(),
-            new TypeProcessor(),
-            new NotNullProcessor(),
-        ]);
-    }
-
-    private static function getPropertyExtractor(): PropertyInfoExtractorInterface
+    public static function create(): RequirementExtractor
     {
         $phpDocExtractor = new PhpDocExtractor();
         $reflectionExtractor = new ReflectionExtractor();
         $phpstanExtractor = new PhpStanExtractor();
 
-        $listExtractors = [$reflectionExtractor];
-        $typeExtractors = [$phpstanExtractor, $phpDocExtractor, $reflectionExtractor];
-        $descriptionExtractors = [$phpDocExtractor];
-        $accessExtractors = [$reflectionExtractor];
-        $propertyInitializableExtractors = [$reflectionExtractor];
+        $typesExtractor = new AllTypeExtractor([$phpstanExtractor, $phpDocExtractor, $reflectionExtractor]);
 
-        return new PropertyInfoExtractor(
-            $listExtractors,
-            $typeExtractors,
-            $descriptionExtractors,
-            $accessExtractors,
-            $propertyInitializableExtractors
-        );
+        return new RequirementExtractor($reflectionExtractor, $typesExtractor, new DocBlockParser(), [
+            new NotBlankProcessor(),
+            new TypeProcessor(),
+            new NotNullProcessor(),
+        ]);
     }
 }
