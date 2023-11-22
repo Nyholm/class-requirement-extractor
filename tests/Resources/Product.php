@@ -15,9 +15,9 @@ class Product
     /**
      * @var ProductComment[]
      */
+    #[Assert\Count(max: 15)]
     #[Assert\All([
-        new Assert\Count(max: 15),
         new Assert\Type(ProductComment::class),
     ])]
-    public $comments;
+    public array $comments;
 }

@@ -138,8 +138,13 @@ class RequirementExtractor
         }
 
         if ($attribute instanceof All) {
+            if (!$requirement instanceof RequirementList) {
+                throw new \LogicException('We must use a RequirementList if attribute All exists');
+            }
+            $child = new Requirement('', $requirement->isWriteable(), $requirement->isReadable());
+            $requirement->setChildRequirements([$child]);
             foreach ($attribute->getNestedConstraints() as $constraint) {
-                $this->parseAttribute($requirement, $constraint);
+                $this->parseAttribute($child, $constraint);
             }
 
             return;

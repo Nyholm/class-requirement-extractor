@@ -2,6 +2,7 @@
 
 namespace Nyholm\ClassRequirementExtractor\Test\unit;
 
+use Nyholm\ClassRequirementExtractor\Model\RequirementList;
 use Nyholm\ClassRequirementExtractor\Test\Resources\Child;
 use Nyholm\ClassRequirementExtractor\Test\Resources\CreateCompany;
 use Nyholm\ClassRequirementExtractor\Test\Resources\Nullable;
@@ -56,10 +57,11 @@ class RequirementExtractorTest extends BaseTestCase
         $this->assertCount(3, $req);
 
         $admin = $req['administrators'];
+        $this->assertInstanceOf(RequirementList::class, $admin);
         $this->assertEquals('array', $admin->getTypes()[0]);
 
-        $this->assertCount(1, $admin->getChildRequirements());
-        $child = $admin->getChildRequirements()[0];
+        $this->assertCount(1, $admin->getRequirements());
+        $child = $admin->getRequirements()[0];
         $this->assertEquals('string', $child->getTypes()[0]);
         $this->assertFalse($child->isNullable());
         $this->assertFalse($child->getAllowEmptyValue());
