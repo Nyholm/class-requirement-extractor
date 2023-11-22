@@ -12,9 +12,12 @@ class Product
     #[Assert\NotBlank()]
     public ?ProductCategory $category = null;
 
+    /**
+     * @var ProductComment[]
+     */
     #[Assert\All([
         new Assert\Count(max: 15),
         new Assert\Type(ProductComment::class),
     ])]
-    public array $comments = [];
+    public $comments;
 }

@@ -3,7 +3,8 @@
 namespace Nyholm\ClassRequirementExtractor;
 
 use phpDocumentor\Reflection\DocBlock;
-use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
+use Symfony\Component\PropertyInfo\PropertyAccessExtractorInterface;
+use Symfony\Component\PropertyInfo\PropertyTypeExtractorInterface;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\Sequentially;
@@ -14,7 +15,8 @@ class RequirementExtractor
     private array $attributeProcessors = [];
 
     public function __construct(
-        private PropertyInfoExtractorInterface $propertyExtractor,
+        private PropertyAccessExtractorInterface $propertyAccessExtractor,
+        private PropertyTypeExtractorInterface $propertyTypeExtractor,
         private DocBlockParser $docBlockParser,
         iterable $attributeProcessors
     ) {
@@ -52,16 +54,24 @@ class RequirementExtractor
             /* @var Requirement $requirement */
             $requirements[$propertyName] = $requirement = new $requirementClass(
                 $propertyName,
-                $this->propertyExtractor->isWritable($class, $propertyName) ?? false,
-                $this->propertyExtractor->isReadable($class, $propertyName) ?? false
+                $this->propertyAccessExtractor->isWritable($class, $propertyName) ?? false,
+                $this->propertyAccessExtractor->isReadable($class, $propertyName) ?? false
             );
 
-            $types = $this->propertyExtractor->getTypes($class, $propertyName) ?? [];
+            $types = $this->propertyTypeExtractor->getTypes($class, $propertyName) ?? [];
             foreach ($types as $type) {
                 $requirement->setNullable($requirement->isNullable() || $type->isNullable());
-                $typeString = $type->getClassName();
-                if (null === $typeString) {
-                    $typeString = $type->getBuiltinType();
+                if ($requirement instanceof RequirementList && $type->isCollection()) {
+                    // TODO fix me
+                    $type = $type->getCollectionValueTypes()[0] ?? null;
+                    if (null === $type) {
+                        continue;
+                    }
+                }
+
+                $typeString = $type->getBuiltinType();
+                if ('object' === $typeString) {
+                    $typeString = $type->getClassName();
                 }
 
                 $requirement->addType($typeString);
@@ -101,7 +111,7 @@ class RequirementExtractor
     private function getRequirementType(string $class, \ReflectionProperty $property): string
     {
         $stringTypes = [];
-        foreach ($this->propertyExtractor->getTypes($class, $property->getName()) ?? [] as $type) {
+        foreach ($this->propertyTypeExtractor->getTypes($class, $property->getName()) ?? [] as $type) {
             $typeString = $type->getClassName();
             if (null === $typeString) {
                 $typeString = $type->getBuiltinType();

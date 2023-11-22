@@ -42,7 +42,7 @@ class Requirement
 
     public function getTypes(): array
     {
-        return $this->types;
+        return array_keys($this->types);
     }
 
     public function addType(?string $type): void
@@ -53,7 +53,7 @@ class Requirement
             $type = 'int';
         }
 
-        $this->types[] = $type;
+        $this->types[$type] = true;
     }
 
     public function isNullable(): ?bool
