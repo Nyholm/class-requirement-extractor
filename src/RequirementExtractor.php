@@ -17,6 +17,8 @@ use Symfony\Component\Validator\Constraints\Type;
 class RequirementExtractor
 {
     private array $attributeProcessors = [];
+    private const CONTEXT_MAX_DEPTH = 3;
+    private const CONTEXT_CIRCULAR_REFERENCE_DETECTION = true;
 
     public function __construct(
         private PropertyAccessExtractorInterface $propertyAccessExtractor,
@@ -46,8 +48,16 @@ class RequirementExtractor
      *
      * @return array<string, Requirement>
      */
-    public function extract(string $class): array
+    public function extract(string $class, array $context = []): array
     {
+        if (($context['circlular_reference_detection'] ?? self::CONTEXT_CIRCULAR_REFERENCE_DETECTION)) {
+            if (in_array($class, $context['_seen'] ?? [])) {
+                return [];
+            }
+
+            $context['_seen'][] = $class;
+        }
+
         $properties = $this->getAllProperties($class);
 
         $requirements = [];
@@ -75,13 +85,18 @@ class RequirementExtractor
                 $this->parseDocBlock($requirement, $docBlock);
             }
 
-            if ($requirement instanceof CollectionRequirement) {
+            if ($requirement instanceof CollectionRequirement && ($context['_current_depth'] ?? 0) < ($context['max_depth'] ?? self::CONTEXT_MAX_DEPTH)) {
                 $types = array_filter($requirement->getTypes(), fn ($type) => class_exists($type));
                 if (count($types) > 1) {
-                    throw new \LogicException('This is not yet supported');
+                    if ($class !== 'App\Entity\User') {
+                        $x = 2;
+                    }
                 }
+
+                $newContext = $context;
+                $newContext['_current_depth'] = ($context['_current_depth'] ?? 1) + 1;
                 foreach ($types as $type) {
-                    $requirement->setChildRequirements($this->extract($type));
+                    $requirement->setChildRequirements($this->extract($type, $newContext));
                 }
             }
         }
