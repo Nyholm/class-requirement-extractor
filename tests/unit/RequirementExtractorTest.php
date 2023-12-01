@@ -4,6 +4,7 @@ namespace Nyholm\ClassRequirementExtractor\Test\unit;
 
 use Nyholm\ClassRequirementExtractor\Model\RequirementList;
 use Nyholm\ClassRequirementExtractor\Test\Resources\Child;
+use Nyholm\ClassRequirementExtractor\Test\Resources\CreateCampaign;
 use Nyholm\ClassRequirementExtractor\Test\Resources\CreateCompany;
 use Nyholm\ClassRequirementExtractor\Test\Resources\Nullable;
 use Nyholm\ClassRequirementExtractor\Test\Resources\Simple;
@@ -89,5 +90,12 @@ class RequirementExtractorTest extends BaseTestCase
     {
         $req = self::$extractor->extract(Child::class);
         $this->assertTrue($req['deprecated']->isDeprecated());
+    }
+
+    public function testComplexAttributes()
+    {
+        $req = self::$extractor->extract(CreateCampaign::class);
+        $this->assertEquals(['array'], $req['users']->getTypes());
+        $this->assertEquals(['string', 'digit'], $req['users']->getRequirements()[0]->getTypes());
     }
 }

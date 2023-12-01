@@ -17,6 +17,8 @@ use Symfony\Component\Validator\Constraints\Type;
 class RequirementExtractor
 {
     private array $attributeProcessors = [];
+    private const CONTEXT_MAX_DEPTH = 3;
+    private const CONTEXT_CIRCULAR_REFERENCE_DETECTION = true;
 
     public function __construct(
         private PropertyAccessExtractorInterface $propertyAccessExtractor,
@@ -46,20 +48,30 @@ class RequirementExtractor
      *
      * @return array<string, Requirement>
      */
-    public function extract(string $class): array
+    public function extract(string $class, array $context = []): array
     {
+        if ($context['circlular_reference_detection'] ?? self::CONTEXT_CIRCULAR_REFERENCE_DETECTION) {
+            if (in_array($class, $context['_seen'] ?? [])) {
+                return [];
+            }
+
+            $context['_seen'][] = $class;
+        }
+
         $properties = $this->getAllProperties($class);
 
         $requirements = [];
         foreach ($properties as $property) {
             $propertyName = $property->name;
             $requirementClass = $this->getRequirementType($class, $property);
+            $attributes = $property->getAttributes();
 
             /** @var Requirement|RequirementList|RequirementMap $requirement */
             $requirement = new $requirementClass(
                 $propertyName,
                 $this->propertyAccessExtractor->isWritable($class, $propertyName) ?? false,
-                $this->propertyAccessExtractor->isReadable($class, $propertyName) ?? false
+                $this->propertyAccessExtractor->isReadable($class, $propertyName) ?? false,
+                $attributes,
             );
             $requirements[$propertyName] = $requirement;
 
@@ -75,13 +87,13 @@ class RequirementExtractor
                 $this->parseDocBlock($requirement, $docBlock);
             }
 
-            if ($requirement instanceof CollectionRequirement) {
-                $types = array_filter($requirement->getTypes(), fn ($type) => class_exists($type));
-                if (count($types) > 1) {
-                    throw new \LogicException('This is not yet supported');
-                }
+            if ($requirement instanceof CollectionRequirement && ($context['_current_depth'] ?? 0) < ($context['max_depth'] ?? self::CONTEXT_MAX_DEPTH)) {
+                $types = array_filter($requirement->getChildTypes(), fn ($type) => class_exists($type));
+                $newContext = $context;
+                $newContext['_current_depth'] = ($context['_current_depth'] ?? 1) + 1;
                 foreach ($types as $type) {
-                    $requirement->setChildRequirements($this->extract($type));
+                    // TODO this will overwrite...
+                    $requirement->setChildRequirements($this->extract($type, $newContext));
                 }
             }
         }
@@ -117,6 +129,15 @@ class RequirementExtractor
         // If type is array, or attribute All or Collection, then do List
         if (in_array('array', $stringTypes) || [] !== $property->getAttributes(All::class) || [] !== $property->getAttributes(Collection::class)) {
             return RequirementList::class;
+        }
+
+        foreach ($property->getAttributes(Sequentially::class) as $sequential) {
+            $newInstance = $sequential->newInstance();
+            foreach ($newInstance->constraints as $constraint) {
+                if ($constraint instanceof All) {
+                    return RequirementList::class;
+                }
+            }
         }
 
         return Requirement::class;

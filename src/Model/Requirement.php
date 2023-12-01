@@ -13,11 +13,17 @@ class Requirement
     private bool $allowEmptyValue = true;
     private array $examples = [];
 
-    public function __construct(string $name, bool $writeable, bool $readable)
+    /**
+     * @var \ReflectionAttribute[]
+     */
+    private array $attributes = [];
+
+    public function __construct(string $name, bool $writeable, bool $readable, array $attributes = [])
     {
         $this->name = $name;
         $this->writeable = $writeable;
         $this->readable = $readable;
+        $this->attributes = $attributes;
     }
 
     public function getName(): string
@@ -99,5 +105,24 @@ class Requirement
     public function setDeprecated(?bool $deprecated): void
     {
         $this->deprecated = $deprecated;
+    }
+
+    public function getAttributes(): array
+    {
+        return $this->attributes;
+    }
+
+    /**
+     * @param class-string $class
+     */
+    public function hasAttributes(string $class): bool
+    {
+        foreach ($this->attributes as $attribute) {
+            if ($attribute->getName() === $class) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

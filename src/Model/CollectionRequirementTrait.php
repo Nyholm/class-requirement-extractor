@@ -18,4 +18,9 @@ trait CollectionRequirementTrait
     {
         $this->childRequirements = $childRequirements;
     }
+
+    public function getChildTypes(): array
+    {
+        return parent::getTypes();
+    }
 }

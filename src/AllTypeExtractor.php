@@ -17,7 +17,7 @@ class AllTypeExtractor implements PropertyTypeExtractorInterface
     ) {
     }
 
-    public function getTypes(string $class, string $property, array $context = [])
+    public function getTypes(string $class, string $property, array $context = []): ?array
     {
         $output = [];
         foreach ($this->typeExtractors as $extractor) {

@@ -15,4 +15,6 @@ interface CollectionRequirement
     public function setChildRequirements(array $childRequirements): void;
 
     public function getTypes(): array;
+
+    public function getChildTypes(): array;
 }
