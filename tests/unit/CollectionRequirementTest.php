@@ -19,7 +19,7 @@ class CollectionRequirementTest extends BaseTestCase
         /** @var RequirementList $commentsReq */
         $commentsReq = $req['comments'];
         // $this->assertEquals(15, $commentsReq->getMaxCount());
-        $this->assertEquals(ProductComment::class, $commentsReq->getTypes()[0]);
+        $this->assertEquals(ProductComment::class, $commentsReq->getChildTypes()[0]);
 
         /** @var Requirement $child */
         $children = $commentsReq->getRequirements();
@@ -36,7 +36,7 @@ class CollectionRequirementTest extends BaseTestCase
         /** @var RequirementMap $categoryReq */
         $categoryReq = $req['category'];
         $this->assertFalse($categoryReq->isNullable());
-        $this->assertEquals(ProductCategory::class, $categoryReq->getTypes()[0]);
+        $this->assertEquals(ProductCategory::class, $categoryReq->getChildTypes()[0]);
 
         /** @var Requirement $child */
         $children = $categoryReq->getRequirements();
