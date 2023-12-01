@@ -70,7 +70,7 @@ class RequirementExtractor
             $requirement = new $requirementClass(
                 $propertyName,
                 $this->propertyAccessExtractor->isWritable($class, $propertyName) ?? false,
-                $this->propertyAccessExtractor->isReadable($class, $propertyName) ?? false,
+                $this->propertyAccessExtractor->isRevadable($class, $propertyName) ?? false,
                 $attributes,
             );
             $requirements[$propertyName] = $requirement;
