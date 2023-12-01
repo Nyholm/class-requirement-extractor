@@ -132,7 +132,6 @@ class RequirementExtractor
         }
 
         foreach ($property->getAttributes(Sequentially::class) as $sequential) {
-            /** @var Sequentially $newInstance */
             $newInstance = $sequential->newInstance();
             foreach ($newInstance->constraints as $constraint) {
                 if ($constraint instanceof All) {

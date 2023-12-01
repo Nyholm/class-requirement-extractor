@@ -91,7 +91,7 @@ class RequirementExtractorTest extends BaseTestCase
         $req = self::$extractor->extract(Child::class);
         $this->assertTrue($req['deprecated']->isDeprecated());
     }
-    
+
     public function testComplexAttributes()
     {
         $req = self::$extractor->extract(CreateCampaign::class);

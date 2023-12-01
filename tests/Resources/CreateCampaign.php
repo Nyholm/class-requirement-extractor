@@ -1,11 +1,11 @@
 <?php
 
 namespace Nyholm\ClassRequirementExtractor\Test\Resources;
+
 use Symfony\Component\Validator\Constraints as Assert;
 
 class CreateCampaign
 {
-
     #[Assert\NotNull]
     #[Assert\Type('array')]
     #[Assert\Unique]
@@ -16,7 +16,6 @@ class CreateCampaign
         new Assert\Type('digit'),
     ])]
     private $users = [];
-
 
     /**
      * @return array<int, string>
