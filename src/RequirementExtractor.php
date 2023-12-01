@@ -50,7 +50,7 @@ class RequirementExtractor
      */
     public function extract(string $class, array $context = []): array
     {
-        if (($context['circlular_reference_detection'] ?? self::CONTEXT_CIRCULAR_REFERENCE_DETECTION)) {
+        if ($context['circlular_reference_detection'] ?? self::CONTEXT_CIRCULAR_REFERENCE_DETECTION) {
             if (in_array($class, $context['_seen'] ?? [])) {
                 return [];
             }
@@ -64,12 +64,14 @@ class RequirementExtractor
         foreach ($properties as $property) {
             $propertyName = $property->name;
             $requirementClass = $this->getRequirementType($class, $property);
+            $attributes = $property->getAttributes();
 
             /** @var Requirement|RequirementList|RequirementMap $requirement */
             $requirement = new $requirementClass(
                 $propertyName,
                 $this->propertyAccessExtractor->isWritable($class, $propertyName) ?? false,
-                $this->propertyAccessExtractor->isReadable($class, $propertyName) ?? false
+                $this->propertyAccessExtractor->isReadable($class, $propertyName) ?? false,
+                $attributes,
             );
             $requirements[$propertyName] = $requirement;
 
@@ -86,16 +88,11 @@ class RequirementExtractor
             }
 
             if ($requirement instanceof CollectionRequirement && ($context['_current_depth'] ?? 0) < ($context['max_depth'] ?? self::CONTEXT_MAX_DEPTH)) {
-                $types = array_filter($requirement->getTypes(), fn ($type) => class_exists($type));
-                if (count($types) > 1) {
-                    if ($class !== 'App\Entity\User') {
-                        $x = 2;
-                    }
-                }
-
+                $types = array_filter($requirement->getChildTypes(), fn ($type) => class_exists($type));
                 $newContext = $context;
                 $newContext['_current_depth'] = ($context['_current_depth'] ?? 1) + 1;
                 foreach ($types as $type) {
+                    // TODO this will overwrite...
                     $requirement->setChildRequirements($this->extract($type, $newContext));
                 }
             }
@@ -132,6 +129,16 @@ class RequirementExtractor
         // If type is array, or attribute All or Collection, then do List
         if (in_array('array', $stringTypes) || [] !== $property->getAttributes(All::class) || [] !== $property->getAttributes(Collection::class)) {
             return RequirementList::class;
+        }
+
+        foreach ($property->getAttributes(Sequentially::class) as $sequential) {
+            /** @var Sequentially $newInstance */
+            $newInstance = $sequential->newInstance();
+            foreach ($newInstance->constraints as $constraint) {
+                if ($constraint instanceof All) {
+                    return RequirementList::class;
+                }
+            }
         }
 
         return Requirement::class;

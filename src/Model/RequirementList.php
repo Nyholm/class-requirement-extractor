@@ -10,4 +10,9 @@ namespace Nyholm\ClassRequirementExtractor\Model;
 class RequirementList extends Requirement implements CollectionRequirement
 {
     use CollectionRequirementTrait;
+
+    public function getTypes(): array
+    {
+        return ['array'];
+    }
 }

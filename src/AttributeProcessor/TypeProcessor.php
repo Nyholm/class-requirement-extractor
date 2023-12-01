@@ -3,6 +3,7 @@
 namespace Nyholm\ClassRequirementExtractor\AttributeProcessor;
 
 use Nyholm\ClassRequirementExtractor\AttributeProcessorInterface;
+use Nyholm\ClassRequirementExtractor\Model\CollectionRequirement;
 use Nyholm\ClassRequirementExtractor\Model\Requirement;
 use Symfony\Component\Validator\Constraints\Type;
 
